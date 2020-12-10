@@ -2,11 +2,14 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
 const cors = require("cors");
+const { connectDB } = require("./models");
+const { createUser } = require("./controllers/user");
 
 const app = express();
 const { PORT = 4000 } = process.env;
 
 app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
+app.use(express.json());
 app.use(cookieParser());
 app.use(
   session({
@@ -24,6 +27,11 @@ app.get("/", (req, res) => {
   res.send(req.session);
 });
 
-app.listen(PORT, () => {
-  console.log(`running on http://localhost:${PORT}`);
-});
+app.post("/register", createUser);
+
+(async function () {
+  await connectDB();
+  app.listen(PORT, () =>
+    console.log("GO GO GO GO GO http://localhost:" + PORT)
+  );
+})();
