@@ -3,7 +3,12 @@ const cookieParser = require("cookie-parser");
 const session = require("express-session");
 const cors = require("cors");
 const { connectDB } = require("./models");
-const { createUser } = require("./controllers/user");
+const {
+  createUser,
+  getUser,
+  loginUser,
+  logoutUser,
+} = require("./controllers/user");
 
 const app = express();
 const { PORT = 4000 } = process.env;
@@ -19,6 +24,10 @@ app.use(
   })
 );
 
+app.use((err, req, res, next) => {
+  res.status(err.status).send(err);
+});
+
 app.get("/", (req, res) => {
   console.log(req.sessionID);
   req.session.requestCount = req.session.requestCount
@@ -26,8 +35,10 @@ app.get("/", (req, res) => {
     : 1;
   res.send(req.session);
 });
-
 app.post("/register", createUser);
+app.post("/login", loginUser);
+app.get("/logout", logoutUser);
+app.get("/profile", getUser);
 
 (async function () {
   await connectDB();
